@@ -1,4 +1,4 @@
-package rag.chen.myapplication.ui.dashboard
+package org.chen.chrouter.ui.dashboard
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,19 +8,22 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import rag.chen.myapplication.R
+import org.chen.chrouter.R
+import org.chen.nav_annotation.Destination
 
+
+@Destination(pageUrl = "main/tabs/dashboard", asStarter = false)
 class DashboardFragment : Fragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         dashboardViewModel =
-                ViewModelProvider(this).get(DashboardViewModel::class.java)
+            ViewModelProvider(this).get(DashboardViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         val textView: TextView = root.findViewById(R.id.text_dashboard)
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
