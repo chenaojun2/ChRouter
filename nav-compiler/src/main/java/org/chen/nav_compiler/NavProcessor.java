@@ -1,11 +1,15 @@
 package org.chen.nav_compiler;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.auto.service.AutoService;
 
 import org.chen.nav_annotation.Destination;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Filter;
@@ -58,11 +62,32 @@ public class NavProcessor extends AbstractProcessor {
             HashMap<String, JSONObject> destMap = new HashMap<>();
             handleDestination(elements, Destination.class, destMap);
             try {
-                FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", OUTPUT_FILE_NAME, null);
-
+                FileObject resource = filer.createResource(StandardLocation.CLASS_OUTPUT, "", OUTPUT_FILE_NAME);
+                // /app/build/intermediates/javac/debug/classes/目录下
+                //app/main/assets/
                 String resourcePath = resource.toUri().getPath();
+
                 String appPath = resourcePath.substring(0, resourcePath.indexOf("app") + 4);
-                String assetsPath = appPath + "src/main/assets";
+                String assestPath = appPath + "src/main/assets";
+
+                File file = new File(assestPath);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+                String content = JSON.toJSONString(destMap);
+
+                File outputFile = new File(assestPath, OUTPUT_FILE_NAME);
+                if (outputFile.exists()) {
+                    outputFile.delete();
+                }
+                outputFile.createNewFile();
+                FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream);
+                writer.write(content);
+                writer.flush();
+
+                fileOutputStream.close();
+                writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,7 +115,7 @@ public class NavProcessor extends AbstractProcessor {
                 jsonObject.put("pageUrl", pageUrl);
                 jsonObject.put("asStarter", asStarter);
                 jsonObject.put("id", id);
-                jsonObject.put("dest", destType);
+                jsonObject.put("destType", destType);
                 destMap.put(pageUrl, jsonObject);
             }
         }
